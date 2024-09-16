@@ -8,7 +8,9 @@ static union mem_u {
     bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
 } memory;
 
-
+int main(void) {
+    
+}
 
 
 
