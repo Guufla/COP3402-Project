@@ -9,7 +9,29 @@ static union mem_u {
 } memory;
 
 int main(void) {
+
+    // Represents the Registers
+    int gp = 0;
+    int sp = 0;
+    int fp = 0;
+    int r3 = 0;
+    int r4 = 0;
+    int r5 = 0;
+    int r6 = 0; 
+    int ra = 0;
+
+    int pc = 0;
+    int hi = 0;
+    int lo = 0;
+
+
+
     
+
+
+
+
+
 }
 
 
