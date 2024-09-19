@@ -1,5 +1,9 @@
 {
     "files.associations": {
-        "machine_types.h": "c"
+        "machine_types.h": "c",
+        "instruction.h": "c",
+        "bof.h": "c",
+        "regname.h": "c",
+        "utilities.h": "c"
     }
 }

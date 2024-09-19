@@ -38,14 +38,18 @@ int main(int argc, char *argv[]) {
             // binary object file offset in bytes
             int bofaddr = 0;
             // populates bof BOFFILE type with information, opens file
-             BOFFILE bof = bof_read_open(argv[i+1]);
-             // while bof is not at the end, read instructions to assembler
-             while (!feof(bof.fileptr)) {
+            BOFFILE bof = bof_read_open(argv[i+1]);
+            BOFHeader bofHeader = bof_read_header(bof);
+            // while bof is not at the end, read instructions to assembler
+            while (!feof(bof.fileptr)) {
                 // read in binary instruction, offset by size of instruction
-                 bin_instr_t instr = instruction_read(bof);
-                 bofaddr += sizeof(instr);
-                 // print assembly form of instruction
-                 printf(instruction_assembly_form(bofaddr, instr));
+                    bin_instr_t instr = instruction_read(bof);
+                    word_type type = bof_read_word(bof);
+                    printf("wordType: %d" , type);
+                    bofaddr += sizeof(instr);
+                    printf("Address: %d \n" , bofaddr);
+                    // print assembly form of instruction
+                    printf(instruction_assembly_form(bofaddr, instr));
              }
         }
     }
@@ -58,6 +62,7 @@ int main(int argc, char *argv[]) {
         printf("Flag -p not detected");
     }
 
+}
 
 
 
