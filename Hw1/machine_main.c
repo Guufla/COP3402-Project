@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "machine.c"
 
 // a size for the memory ( 2 ^ 1 6 words = 32K words )
@@ -8,7 +11,8 @@ static union mem_u {
     bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
 } memory;
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
 
     // Represents the Registers
     int gp = 0;
@@ -26,13 +30,34 @@ int main(void) {
 
 
 
-    
+    int pFlag = 0;
+
+    for(int i = 1; i < argc; i++){
+        if(strcmp(argv[i],"-p") == 0){
+            pFlag = 1;
+            // binary object file offset in bytes
+            int bofaddr = 0;
+            // populates bof BOFFILE type with information, opens file
+             BOFFILE bof = bof_read_open(argv[i+1]);
+             // while bof is not at the end, read instructions to assembler
+             while (!feof(bof.fileptr)) {
+                // read in binary instruction, offset by size of instruction
+                 bin_instr_t instr = instruction_read(bof);
+                 bofaddr += sizeof(instr);
+                 // print assembly form of instruction
+                 printf(instruction_assembly_form(bofaddr, instr));
+             }
+        }
+    }
 
 
+    if (pFlag){
+        printf("Flag -p detected");
+    }
+    else{
+        printf("Flag -p not detected");
+    }
 
-
-
-}
 
 
 
