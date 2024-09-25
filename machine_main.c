@@ -69,7 +69,15 @@ int main(int argc, char *argv[]) {
     }
     else{
         printf("Flag -p not detected");
+        BOFFILE bof = bof_read_open(argv[1]);
+        BOFHeader bofHeader = bof_read_header(bof);
+        bin_instr_t instruction;
+        
+
+
+
     }
+
 
 }
 
