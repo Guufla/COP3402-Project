@@ -22,18 +22,18 @@ int main(int argc, char *argv[]) {
 
     union mem_u memory;
     // Represents the Registers
-    int gp = 0;
-    int sp = 0;
-    int fp = 0;
-    int r3 = 0;
-    int r4 = 0;
-    int r5 = 0;
-    int r6 = 0;
-    int ra = 0;
+    word_type gp = 0;
+    word_type sp = 0;
+    word_type fp = 0;
+    word_type r3 = 0;
+    word_type r4 = 0;
+    word_type r5 = 0;
+    word_type r6 = 0;
+    word_type ra = 0;
 
-    int pc = 0;
-    int hi = 0;
-    int lo = 0;
+    word_type pc = 0;
+    word_type hi = 0;
+    word_type lo = 0;
 
 
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
             printf("File and file header are read in!\n");
             printf(".text\t%u\n", bofHeader.text_start_address);
 
-           for (int j = 1; j < bofHeader.text_length; j++) {
+           for (int j = 0; j < bofHeader.text_length; j++) {
                 instru = instruction_read(bof);
                 printf("a%d:\t%s\n", j, instruction_assembly_form(j, instru));
                 instruction_assembly_form(j, memory.instrs[j]);
@@ -72,12 +72,34 @@ int main(int argc, char *argv[]) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
+        // initialize all registers based on the header from the bof
+        gp = bofHeader.data_start_address;
+        fp = bofHeader.stack_bottom_addr;
+        sp = bofHeader.stack_bottom_addr;
+        pc = bofHeader.text_start_address;
+        // Loads instructions into memory from memory.instrs[beginning_address] to memory.instrs[end_address]
+        for (int j = 0; j < bofHeader.text_length; j++) {
+            memory.instrs[j] = instruction_read(bof);
+        }
+
+        // Process instructions so we can use data from memory!
+        while (pc < bofHeader.text_length) {
+            instruction = memory.instrs[pc];
+            // Execute the instruction in a loop.
+            for (int i = 0; i < bofHeader.text_length; i++) {
+                machine_execute_instr(memory.instrs[pc]);  // TODO
+
+            }
+
+        }
         
+        
+        // Loads data into memory from memory.words[beginning_address] to memory.words[end_address]
+        // THIS WILL OVERWRITE MEMORY IN THE INSTRUCTION MEMORY SECTION
+        for (int k = 0; k < bofHeader.data_length; k++) {
+            memory.words[k] = bof_read_word(bof);
 
-
-
-    }
-
+        }
 
 }
 

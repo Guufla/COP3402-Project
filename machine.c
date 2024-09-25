@@ -42,6 +42,7 @@ void machine_load(BOFFILE bf){
 }
 
 void machine_execute_instr(bin_instr_t bi){
+    // add a flag that checks if output needs to be traced
 
 }
 
