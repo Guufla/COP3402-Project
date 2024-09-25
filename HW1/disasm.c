@@ -1,10 +1,12 @@
 /* $Id: disasm.c,v 1.14 2024/07/28 22:01:51 leavens Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "disasm.h"
 #include "bof.h"
 #include "regname.h"
 #include "utilities.h"
 #include "instruction.h"
+#include "machine_types.h"
 
 // Disassemble code from bf,
 // with output going to the file out

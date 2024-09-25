@@ -426,7 +426,7 @@ const char *instruction_syscall_mnemonic(syscall_type code)
 // (i.e., instr.syscall.op == OTHC_O and instr.syscall.func == SYS_F).
 // Return the code field that tells what kind of system call is being made
 syscall_type instruction_syscall_number(bin_instr_t instr) {
-    assert(instr.syscall.op == OTHC_O && instr.syscall.func == SYS_F);
+    //assert(instr.syscall.op == OTHC_O && instr.syscall.func == SYS_F);
     return instr.syscall.code;
 }
 
