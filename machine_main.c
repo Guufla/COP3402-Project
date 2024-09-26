@@ -20,7 +20,6 @@ static union mem_u {
 
 int main(int argc, char *argv[]) {
 
-    union mem_u memory;
     // Represents the Registers
     word_type gp = 0;
     word_type sp = 0;
@@ -72,6 +71,7 @@ int main(int argc, char *argv[]) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
+        bof_read_close(bof);
         // initialize all registers based on the header from the bof
         gp = bofHeader.data_start_address;
         fp = bofHeader.stack_bottom_addr;
@@ -82,25 +82,19 @@ int main(int argc, char *argv[]) {
             memory.instrs[j] = instruction_read(bof);
         }
 
-        // Process instructions so we can use data from memory!
-        while (pc < bofHeader.text_length) {
-            instruction = memory.instrs[pc];
-            // Execute the instruction in a loop.
-            for (int i = 0; i < bofHeader.text_length; i++) {
-                machine_execute_instr(memory.instrs[pc]);  // TODO
-
-            }
-
-        }
-        
-        
-        // Loads data into memory from memory.words[beginning_address] to memory.words[end_address]
-        // THIS WILL OVERWRITE MEMORY IN THE INSTRUCTION MEMORY SECTION
+          // Loads data into memory from memory.words[beginning_address] to memory.words[end_address]
+        // accessed from $gp, distinct from $pc section
         for (int k = 0; k < bofHeader.data_length; k++) {
             memory.words[k] = bof_read_word(bof);
-
         }
 
+        // Process instructions so we can use data from memory (moves stack downwards).
+        while (pc < bofHeader.text_length) {
+            instruction = memory.instrs[pc];
+            pc++; // pc is supposed to be incremented before instruction is executed according to 3.3 in SSM
+            machine_execute_instr(instruction);
+        }
+    }
 }
 
 
