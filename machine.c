@@ -47,6 +47,7 @@ static void initialize(){
     }
 }
 
+
 void machine_load(BOFFILE bf){
 
 }
@@ -54,6 +55,7 @@ void machine_load(BOFFILE bf){
 
 
 void machine_execute_instr(bin_instr_t bi){
+
     PC = PC + BYTES_PER_WORD;
     
     instr_type it = instruction_type(bi);
