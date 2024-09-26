@@ -30,10 +30,12 @@ static address_type PC;
 static void initialize(){
     for(int j = 0; j < NUM_REGISTERS; j++){
         GPR.words[j] = 0;
+        GPR.uwords[j] = 0;
     }
     \
     for(int j = 0; j < MEMORY_SIZE_IN_WORDS; j++){
         memory.words[j] = 0;
+        memory.uwords[j] = 0;
     }
 }
 
@@ -53,25 +55,27 @@ void machine_execute_instr(bin_instr_t bi){
             {
                 case NOP_F:
                 {
+                    // Does literally nothing
                     break;
                 }
-                case ADD_F:
+                case ADD_F: // Add
                 {
-                    
                     memory.words[GPR.words[com.rt] + machine_types_formOffset(com.ot)] = memory.words[GPR.words[SP]] + machine_types_formOffset(com.os);
                     break;
                 }
-                case SUB_F:
+                case SUB_F: // Subtract
                 {
                     memory.words[GPR.words[com.rt] + machine_types_formOffset(com.ot)] = memory.words[GPR.words[SP]] - machine_types_formOffset(com.os);
                     break;
                 }
-                case CPW_F:
+                case CPW_F: // Copy word
                 {
+                    memory.words[GPR.words[com.rt] + machine_types_formOffset(com.ot)] = memory.words[GPR.words[com.rs]] + machine_types_formOffset(com.os);
                     break;
                 }
-                case BOR_F:
+                case BOR_F: // Bitwise And
                 {
+                    memory.uwords[GPR.uwords[com.rt] + machine_types_formOffset(com.ot)] = memory.uwords[SP] && (memory.uwords[GPR.uwords[com.rs] + machine_types_formOffset(com.os)]);
                     break;
                 }
                 case NOR_F:
