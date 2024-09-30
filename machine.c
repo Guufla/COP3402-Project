@@ -320,6 +320,16 @@ void machine_execute_instr(bin_instr_t bi){
                     }
                     break;
                 }
+                
+
+            }
+        }
+
+        case jump_instr_type:
+        {
+            jump_instr_t jmp = bi.jump;
+            switch(jmp.op)
+            {
                 case JMPA_O:
                 {
                     PC = machine_types_formAddress(PC - 1, bi.jump.addr);
@@ -334,21 +344,6 @@ void machine_execute_instr(bin_instr_t bi){
                 case RTN_O:
                 {
                     PC = GPR.words[RA];
-                    break;
-                }
-                
-
-            }
-        }
-
-        case jump_instr_type:
-        {
-            jump_instr_t jmp = bi.jump;
-            switch(jmp.op)
-            {
-                case NOP_F:
-                {
-                    // Does literally nothing
                     break;
                 }
 
