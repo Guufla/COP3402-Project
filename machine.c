@@ -132,7 +132,8 @@ void machine_execute_instr(bin_instr_t bi){
                 }
 
             } 
-        } break;
+            break;
+        } 
         case other_comp_instr_type:
         {
             other_comp_instr_t ocom = bi.othc;
@@ -204,50 +205,49 @@ void machine_execute_instr(bin_instr_t bi){
                 case SYS_F:
                 {
                     
-                    // NOT FINISHED SOMETHING NEEDS TO GO HERE IM NOT SURE WHAT
+                    switch(instruction_syscall_number(bi))
+                    {
+                        case exit_sc:
+                        {
+                            exit(machine_types_sgnExt(bi.othc.offset));
+                            break;
+                        }
+                        case print_str_sc:
+                        {
+                            memory.words[GPR.words[SP]] = printf("%d" , &memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)]);
+                            break;
+                        }
+                        case print_char_sc:
+                        {
+                            memory.words[GPR.words[SP]] = fputc(memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)] , stdout);
+                            break;
+                        }
+                        case read_char_sc:
+                        {
+                            memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)] = getc(stdin);
+                            break;
+                        }
+                        case start_tracing_sc:
+                        {
+                            tracing = true;
+                            break;
+                        }
+                        case stop_tracing_sc:
+                        {
+                            tracing = false;
+                            break;
+                        }
+                        
+
+                    }
                     break;
                 }
 
             }
-        } break;
-        case syscall_instr_type:
-        {
-            switch(instruction_syscall_number(bi))
-            {
-                case exit_sc:
-                {
-                    exit(machine_types_sgnExt(bi.othc.offset));
-                    break;
-                }
-                case print_str_sc:
-                {
-                    memory.words[GPR.words[SP]] = printf("%d" , &memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)]);
-                    break;
-                }
-                case print_char_sc:
-                {
-                    memory.words[GPR.words[SP]] = fputc(memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)] , stdout);
-                    break;
-                }
-                case read_char_sc:
-                {
-                    memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)] = getc(stdin);
-                    break;
-                }
-                case start_tracing_sc:
-                {
-                    tracing = true;
-                    break;
-                }
-                case stop_tracing_sc:
-                {
-                    tracing = false;
-                    break;
-                }
-                
+            break;
+        } 
 
-            }
-        } break;
+
         case immed_instr_type:
         {
             immed_instr_t im = bi.immed;
@@ -323,7 +323,8 @@ void machine_execute_instr(bin_instr_t bi){
                 
 
             }
-        } break;
+            break;
+        } 
 
         case jump_instr_type:
         {
@@ -348,7 +349,9 @@ void machine_execute_instr(bin_instr_t bi){
                 }
 
             }
-        } break;
+            break;
+        } 
+        
         // DO NOT FORGET BREAKS AT THE END OF EACH CASE !!!!!
     }
 }
