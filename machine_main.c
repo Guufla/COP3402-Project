@@ -7,7 +7,7 @@
 #include "machine_types.h"
 #include "regname.h"
 #include "utilities.h"
-#include "machine.c"
+#include "machine.h"
 #include "assert.h"
 
 // a size for the memory ( 2 ^ 16 words = 32K words )
