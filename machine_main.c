@@ -93,7 +93,6 @@ int main(int argc, char *argv[]) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
-        bof_close(bof);
         // initialize all registers based on the header from the bof
         gp = bofHeader.data_start_address;
         fp = bofHeader.stack_bottom_addr;
@@ -116,6 +115,7 @@ int main(int argc, char *argv[]) {
             pc++; // pc is supposed to be incremented before instruction is executed according to 3.3 in SSM
             machine_execute_instr(instruction);
         }
+        bof_close(bof);
     }
 }
 
