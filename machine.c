@@ -340,6 +340,20 @@ void machine_execute_instr(bin_instr_t bi){
 
             }
         }
+
+        case jump_instr_type:
+        {
+            jump_instr_t jmp = bi.jump;
+            switch(jmp.op)
+            {
+                case NOP_F:
+                {
+                    // Does literally nothing
+                    break;
+                }
+
+            }
+        }
         // DO NOT FORGET BREAKS AT THE END OF EACH CASE !!!!!
     }
 }
