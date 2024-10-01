@@ -55,7 +55,7 @@ void machine_load(BOFFILE bf){
 
 
 void machine_execute_instr(bin_instr_t bi){
-    
+    PC = PC + BYTES_PER_WORD;
     instr_type it = instruction_type(bi);
     switch(it){
         case comp_instr_type:
@@ -377,7 +377,6 @@ void machine_execute_instr(bin_instr_t bi){
         
         // DO NOT FORGET BREAKS AT THE END OF EACH CASE !!!!!
     }
-    PC = PC + BYTES_PER_WORD;
 }
 
 static void print_global_data(FILE *out){
