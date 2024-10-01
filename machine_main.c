@@ -18,6 +18,7 @@ static union mem_u {
     bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
 } memory;
 
+
 int main(int argc, char *argv[]) {
 
     // Represents the Registers
@@ -110,14 +111,64 @@ int main(int argc, char *argv[]) {
         }
 
         // Process instructions so we can use data from memory (moves stack downwards).
-        while (pc < fp) {
+        while (pc < bofHeader.text_start_address + bofHeader.text_length) {
             instruction = memory.instrs[pc];
+
+            // Print the PC value
+            printf("      PC: %d\n", pc);
+
+            // Print the registers
+            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
+                gp, sp, fp, r3, r4);
+
+            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
+                r5, r6, ra);
+
+            // print the data items
+            word_type count = 0;
+            word_type repeat = 0;
+            word_type data = bofHeader.data_start_address;
+            for (int k = 0; k < bofHeader.data_length; k++) {
+                word_type dataItem = memory.words[k];
+                if(dataItem == 0) repeat++;
+                if(repeat == 2)//repeat location case
+                {
+                  printf("...\n");
+                  break;
+                }
+                
+                printf("%u: %d   ", data , dataItem); //print data
+                data++;
+                count++;
+                
+                if(count != 0 && count % 5 == 0) printf("\n"); //print new line every 5 data.
+               
+                
+
+                if(k == bofHeader.data_length - 1)
+                {
+                  printf("%u: 0   ", data); 
+                  
+                  if(k == 3){printf("\n");} //edge case
+                  
+                  printf("...\n");
+                } 
+
+                // last item
+                if (k == bofHeader.data_start_address + bofHeader.data_length - 1) {
+                    printf("%u: %d   ", data , dataItem); //print data
+                }
+
+            }
+            printf("\n==>\t  %d: %s\n", pc, instruction_assembly_form(pc, memory.instrs[pc]));
+
             pc++; // pc is supposed to be incremented before instruction is executed according to 3.3 in SSM
             machine_execute_instr(instruction);
         }
         bof_close(bof);
     }
 }
+    
 
 /*
 // read in binary instruction, offset by size of instruction
