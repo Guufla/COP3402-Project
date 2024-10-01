@@ -7,16 +7,17 @@
 #include "machine_types.h"
 #include "regname.h"
 #include "utilities.h"
-#include "machine.c"
+#include "machine.h"
 #include "assert.h"
 
-// a size for the memory ( 2 ^ 1 6 words = 32K words )
+// a size for the memory ( 2 ^ 16 words = 32K words )
 #define MEMORY_SIZE_IN_WORDS 32768
 static union mem_u {
     word_type words[MEMORY_SIZE_IN_WORDS];
     uword_type uwords[MEMORY_SIZE_IN_WORDS];
     bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
 } memory;
+
 
 int main(int argc, char *argv[]) {
 
@@ -29,74 +30,145 @@ int main(int argc, char *argv[]) {
     word_type r5 = 0;
     word_type r6 = 0;
     word_type ra = 0;
-
     word_type pc = 0;
-    word_type hi = 0;
-    word_type lo = 0;
 
 
 
     int pFlag = 0;
-    for(int i = 1; i < argc; i++){
-        if(strcmp(argv[i],"-p") == 0){
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-p") == 0) {
             pFlag = 1;
-            printf("P flag is checked in!\n");
-            printf("%s", argv[i+1]);
             BOFFILE bof = bof_read_open(argv[i+1]);
             BOFHeader bofHeader = bof_read_header(bof);
             bin_instr_t instru;
 
-            printf("File and file header are read in!\n");
-            printf(".text\t%u\n", bofHeader.text_start_address);
-
-           for (int j = 0; j < bofHeader.text_length; j++) {
+            //printf(".text\t%u\n", bofHeader.text_start_address);
+            printf("Address Instruction\n");
+            for (int j = 0; j < bofHeader.text_length; j++) {
                 instru = instruction_read(bof);
-                printf("a%d:\t%s\n", j, instruction_assembly_form(j, instru));
-                instruction_assembly_form(j, memory.instrs[j]);
-                printf("debug: Instruction printed!\n");
-           }
-           for (int k = 0; k < bofHeader.data_length; k++) {
+                printf("%d:\t%s\n", j, instruction_assembly_form(j, instru));
+            }
+            word_type data = bofHeader.data_start_address;
+            if(bofHeader.data_length == 0) //no data case
+            {
+              printf("%u: 0   ",data);
+                  printf("...\n");
+            }
+            else{
+            word_type count = 0;
+            word_type repeat = 0;
+            for (int k = 0; k < bofHeader.data_length; k++) {
                 word_type dataItem = bof_read_word(bof);
-                printf("debug: Data word read!\n");
-           }
+                if(dataItem == 0) repeat++;
+                if(repeat == 2)//repeat location case
+                {
+                  printf("...\n");
+                  break;
+                }
+                
+                printf("%u: %d   ",data, dataItem); //print data
+                data++;
+                count++;
+                
+                if(count != 0 && count % 5 == 0) printf("\n"); //print new line every 5 data.
+               
+                
+
+                if(k == bofHeader.data_length - 1)
+                {
+                  printf("%u: 0   ",data);
+                  
+                  if(k == 3){printf("\n");} //edge case
+                  
+                  printf("...\n");
+                } 
+            }
+            }
+            //printf("\n");
+            bof_close(bof);
+            return 0;
         }
     }
 
-
-    if (pFlag){
-        printf("Flag -p detected");
-    }
-    else{
-        printf("Flag -p not detected");
+    if (strcmp(argv[1], "-p") != 0) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
-        bof_read_close(bof);
         // initialize all registers based on the header from the bof
         gp = bofHeader.data_start_address;
         fp = bofHeader.stack_bottom_addr;
         sp = bofHeader.stack_bottom_addr;
         pc = bofHeader.text_start_address;
         // Loads instructions into memory from memory.instrs[beginning_address] to memory.instrs[end_address]
-        for (int j = 0; j < bofHeader.text_length; j++) {
+        for (int j = bofHeader.text_start_address; j < bofHeader.text_length; j++) {
             memory.instrs[j] = instruction_read(bof);
         }
 
           // Loads data into memory from memory.words[beginning_address] to memory.words[end_address]
         // accessed from $gp, distinct from $pc section
-        for (int k = 0; k < bofHeader.data_length; k++) {
+        for (int k = bofHeader.data_start_address; k < bofHeader.data_length; k++) {
             memory.words[k] = bof_read_word(bof);
         }
 
         // Process instructions so we can use data from memory (moves stack downwards).
-        while (pc < bofHeader.text_length) {
+        while (pc < bofHeader.text_start_address + bofHeader.text_length) {
             instruction = memory.instrs[pc];
+
+            // Print the PC value
+            printf("      PC: %d\n", pc);
+
+            // Print the registers
+            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
+                gp, sp, fp, r3, r4);
+
+            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
+                r5, r6, ra);
+
+            // print the data items
+            word_type count = 0;
+            word_type repeat = 0;
+            word_type data = bofHeader.data_start_address;
+            for (int k = 0; k < bofHeader.data_length; k++) {
+                word_type dataItem = memory.words[k];
+                if(dataItem == 0) repeat++;
+                if(repeat == 2)//repeat location case
+                {
+                  printf("...\n");
+                  break;
+                }
+                
+                printf("%u: %d   ", data , dataItem); //print data
+                data++;
+                count++;
+                
+                if(count != 0 && count % 5 == 0) printf("\n"); //print new line every 5 data.
+               
+                
+
+                if(k == bofHeader.data_length - 1)
+                {
+                  printf("%u: 0   ", data); 
+                  
+                  if(k == 3){printf("\n");} //edge case
+                  
+                  printf("...\n");
+                } 
+
+                // last item
+                if (k == bofHeader.data_start_address + bofHeader.data_length - 1) {
+                    printf("%u: %d   ", data , dataItem); //print data
+                }
+
+            }
+            printf("\n==>\t  %d: %s\n", pc, instruction_assembly_form(pc, memory.instrs[pc]));
+
             pc++; // pc is supposed to be incremented before instruction is executed according to 3.3 in SSM
             machine_execute_instr(instruction);
         }
+        bof_close(bof);
     }
 }
-
+    
 
 /*
 // read in binary instruction, offset by size of instruction

@@ -131,8 +131,9 @@ void machine_execute_instr(bin_instr_t bi){
                     break;
                 }
 
-            }
-        }
+            } 
+            break;
+        } 
         case other_comp_instr_type:
         {
             other_comp_instr_t ocom = bi.othc;
@@ -213,7 +214,7 @@ void machine_execute_instr(bin_instr_t bi){
                         }
                         case print_str_sc:
                         {
-                            memory.words[GPR.words[SP]] = printf("%s" , &memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)]);
+                            memory.words[GPR.words[SP]] = printf("%d" , &memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)]);
                             break;
                         }
                         case print_char_sc:
@@ -242,7 +243,10 @@ void machine_execute_instr(bin_instr_t bi){
                 }
 
             }
-        }
+            break;
+        } 
+
+
         case immed_instr_type:
         {
             immed_instr_t im = bi.immed;
@@ -315,6 +319,17 @@ void machine_execute_instr(bin_instr_t bi){
                     }
                     break;
                 }
+                
+
+            }
+            break;
+        } 
+
+        case jump_instr_type:
+        {
+            jump_instr_t jmp = bi.jump;
+            switch(jmp.op)
+            {
                 case JMPA_O:
                 {
                     PC = machine_types_formAddress(PC - 1, bi.jump.addr);
@@ -331,10 +346,11 @@ void machine_execute_instr(bin_instr_t bi){
                     PC = GPR.words[RA];
                     break;
                 }
-                
 
             }
-        }
+            break;
+        } 
+        
         // DO NOT FORGET BREAKS AT THE END OF EACH CASE !!!!!
     }
 }
