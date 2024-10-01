@@ -237,7 +237,6 @@ void machine_execute_instr(bin_instr_t bi){
                             tracing = false;
                             break;
                         }
-                        
 
                     }
                     break;
