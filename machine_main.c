@@ -20,10 +20,10 @@
 
 int main(int argc, char *argv[]) {
 
-    int pFlag = 0;
+    
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
-            pFlag = 1;
+            
             BOFFILE bof = bof_read_open(argv[i + 1]);
             BOFHeader bofHeader = bof_read_header(bof);
             bin_instr_t instru;
@@ -111,6 +111,7 @@ int main(int argc, char *argv[]) {
             for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
                 word_type dataItem = memory.words[k];
         	if (tracing == false) {
+                //printf("Skipping iteration due to tracing being false\n");
             	continue;
         	}
 

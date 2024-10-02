@@ -71,7 +71,7 @@ void machine_execute_instr(bin_instr_t bi){
     switch(it){
         case comp_instr_type:
         {
-            printf("comp type machine c \n");
+            //printf("comp type machine c \n");
             comp_instr_t com = bi.comp;
             switch(com.func)
             {
@@ -204,7 +204,7 @@ void machine_execute_instr(bin_instr_t bi){
                     case stop_tracing_sc:
                 {
                     tracing = false;
-                    printf("Tracing disabled\n");
+                    //printf("Tracing disabled\n");
                     break;
                 }
                     }
@@ -212,9 +212,9 @@ void machine_execute_instr(bin_instr_t bi){
                 }
         case other_comp_instr_type:
         {
-            printf("other comp type machine c \n");
+            //printf("other comp type machine c \n");
             other_comp_instr_t ocom = bi.othc;
-            printf("Debug: ocom.func = %d\n", ocom.func); // Add this line
+            //printf("Debug: ocom.func = %d\n", ocom.func); // Add this line
             switch(ocom.func)
             {
                 case LIT_F: // Literal (Load)
@@ -231,12 +231,12 @@ void machine_execute_instr(bin_instr_t bi){
                 case SRI_F: // Subtract register immediate
                 {
                     GPR.words[ocom.reg] = (GPR.words[ocom.reg] - machine_types_sgnExt(ocom.arg));
-                    printf("%d debug?", GPR.words[ocom.reg]);
+                    //printf("%d debug?", GPR.words[ocom.reg]);
                     break;
                 }
                 case MUL_F:
                 {
-                    printf("No multiply function\n");
+                    //printf("No multiply function\n");
 		    HI = 0;
 		    LO = 140;
                     break;
@@ -312,7 +312,7 @@ void machine_execute_instr(bin_instr_t bi){
                 {
                      memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)] =
                         memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)] + machine_types_sgnExt(im.immed);
-                    printf("ADDI Result: %u\n", memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)]);
+                    //printf("ADDI Result: %u\n", memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)]);
                     break;
                 }
                 case ANDI_O: // Bitwise and immediate
@@ -395,7 +395,7 @@ void machine_execute_instr(bin_instr_t bi){
 
         case jump_instr_type:
         {
-            printf(" jump type machine c \n");
+            //printf(" jump type machine c \n");
             jump_instr_t jmp = bi.jump;
             switch(jmp.op)
             {
@@ -419,6 +419,16 @@ void machine_execute_instr(bin_instr_t bi){
             }
             break;
         } 
+        //add more
+        case error_instr_type:
+        // handle the error case
+        printf("Error: Invalid instruction type encountered.\n");
+        break;
+    
+        // optional default case to handle unexpected enum values
+        default:
+        printf("Warning: Unhandled instruction type.\n");
+        break;
         
         // DO NOT FORGET BREAKS AT THE END OF EACH CASE !!!!!
     }
