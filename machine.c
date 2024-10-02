@@ -128,18 +128,18 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case LWR_F: // Load Word into register
                 {
-                    GPR.uwords[com.rt] = memory.words[GPR.words[com.rs] + machine_types_formOffset(com.os)];
+                    GPR.words[com.rt] = memory.words[GPR.words[com.rs] + machine_types_formOffset(com.os)];
                     break;
                 }
                 case SWR_F: // Store word in register
                 {
-                    memory.words[GPR.words[com.rt]] = GPR.words[com.rs];
+                    memory.words[GPR.words[com.rt] + machine_types_formOffset(com.ot)] = GPR.words[com.rs];
 
                     break;
                 }
                 case SCA_F: // Store Computed address
                 {
-                    GPR.words[com.rt] = GPR.words[com.rs] + machine_types_formOffset(com.os);
+                    memory.words[GPR.words[com.rt] + machine_types_formOffset(com.ot)] = GPR.words[com.rs] + machine_types_formOffset(com.os);
 
                     break;
                 }
@@ -177,6 +177,7 @@ void machine_execute_instr(bin_instr_t bi){
                 {
                     char *string_ptr = (char *)&memory.words[GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset)];
                     printf("%s", string_ptr); 
+                    memory.words[GPR.words[SP]] = *string_ptr;
                     //printf("%d", GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset));
 
                      break;
@@ -186,6 +187,7 @@ void machine_execute_instr(bin_instr_t bi){
                 address_type addr = GPR.words[bi.syscall.reg] + machine_types_formOffset(bi.syscall.offset);
                 byte_type ch = (byte_type)(memory.words[addr] & 0xFF);
                 fputc(ch, stdout);
+                memory.words[GPR.words[SP]] = ch;
 
                 break;
                 }
@@ -217,8 +219,8 @@ void machine_execute_instr(bin_instr_t bi){
             {
                 case LIT_F: // Literal (Load)
                 {
-                    GPR.words[ocom.reg] = machine_types_sgnExt(ocom.arg);
-
+                    //GPR.words[ocom.reg] = machine_types_sgnExt(ocom.arg);
+                    memory.words[GPR.words[ocom.reg] + machine_types_formOffset(ocom.offset)] = machine_types_sgnExt(ocom.arg);
                     break;
                 }
                 case ARI_F: // Add register immedidiate
@@ -229,6 +231,7 @@ void machine_execute_instr(bin_instr_t bi){
                 case SRI_F: // Subtract register immediate
                 {
                     GPR.words[ocom.reg] = (GPR.words[ocom.reg] - machine_types_sgnExt(ocom.arg));
+                    printf("%d debug?", GPR.words[ocom.reg]);
                     break;
                 }
                 case MUL_F:
@@ -259,8 +262,8 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case SLL_F: // Shift left logical
                 {
-                    uword_type stack_value = memory.uwords[GPR.words[SP]]; 
-                    memory.uwords[GPR.words[ocom.reg] + machine_types_formOffset(ocom.offset)] = stack_value << ocom.arg;
+                    uword_type stack_value = memory.uwords[GPR.uwords[SP]]; 
+                    memory.uwords[GPR.uwords[ocom.reg] + machine_types_formOffset(ocom.offset)] = stack_value << ocom.arg;
 
                     //memory.uwords[GPR.words[ocom.reg] + machine_types_formOffset(ocom.offset)] = 
                         //memory.uwords[GPR.words[SP]] << ocom.arg;
@@ -302,7 +305,6 @@ void machine_execute_instr(bin_instr_t bi){
 
         case immed_instr_type:
         {
-            printf("immed type machine c \n");
             immed_instr_t im = bi.immed;
             switch(im.op)
             {
@@ -310,7 +312,7 @@ void machine_execute_instr(bin_instr_t bi){
                 {
                      memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)] =
                         memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)] + machine_types_sgnExt(im.immed);
-
+                    printf("ADDI Result: %u\n", memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)]);
                     break;
                 }
                 case ANDI_O: // Bitwise and immediate
@@ -343,6 +345,7 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case BEQ_O: // Branch on equal
                 {
+
                     if (memory.words[GPR.words[SP]] == memory.words[GPR.words[im.reg] + machine_types_formOffset(im.offset)]) {
                         PC = (PC - 1) + machine_types_formOffset(im.immed);
                     }
@@ -403,7 +406,7 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case CALL_O:
                 {
-                    GPR.words[RA] = PC - 1;
+                    GPR.words[RA] = PC;
                     PC = machine_types_formAddress(PC - 1, bi.jump.addr);
                     break;
                 }

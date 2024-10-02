@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
+        initialize();
 
         // Initialize all registers using the GPR array in machine.c
         GPR.words[GP] = bofHeader.data_start_address;
@@ -91,13 +92,17 @@ int main(int argc, char *argv[]) {
         // Process instructions
         while (PC < bofHeader.text_start_address + bofHeader.text_length) {
             instruction = memory.instrs[PC];
+            //PC++; // increment PC before execution
+            //machine_execute_instr(instruction);
 
+            if (tracing == true) {
             // Print the PC and Registers
             printf("      PC: %d\n", PC);
             printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
                 GPR.words[GP], GPR.words[SP], GPR.words[FP], GPR.words[3], GPR.words[4]);
             printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
                 GPR.words[5], GPR.words[6], GPR.words[RA]);
+            }
 
             // Print data items
             word_type count = 0;
@@ -106,7 +111,7 @@ int main(int argc, char *argv[]) {
             for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
                 word_type dataItem = memory.words[k];
         	if (tracing == false) {
-                printf("Skipping iteration due to tracing being false\n");
+                //printf("Skipping iteration due to tracing being false\n");
             	continue;
         	}
 
@@ -123,7 +128,7 @@ int main(int argc, char *argv[]) {
 
 
                 if (repeat == 2) {
-                    printf("...   ");
+                    printf("    ...    ");
 		    data_addr++;
 		    continue;
 		    
@@ -135,7 +140,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (repeat < 2) {
-                    printf("%u: %d   ", data_addr, dataItem);
+                    printf("    %u: %d\t    ", data_addr, dataItem);
 		    count++;// print data
 		}
 
@@ -149,10 +154,9 @@ int main(int argc, char *argv[]) {
 		//    printf("...\n");
                     //if (k == 3) { printf("\n"); } // edge case
                     //printf("...\n");
-                
             }
 
-            printf("\n==>\t  %d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));
+            if (tracing == true) { printf("\n==>\t  %d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));}
             PC++; // increment PC before execution
             machine_execute_instr(instruction);
         }
