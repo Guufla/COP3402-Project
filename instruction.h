@@ -81,7 +81,7 @@ typedef struct {
     reg_num_type reg : 3;
     offset_type offset : 9;
     uimmed_type uimmed : 16;
-} uimmed_instr_t;
+} uimmed_instr_t;  
 
 // jump type instructions
 typedef struct {
