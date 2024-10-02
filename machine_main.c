@@ -106,7 +106,6 @@ int main(int argc, char *argv[]) {
             for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
                 word_type dataItem = memory.words[k];
         	if (tracing == false) {
-                printf("Skipping iteration due to tracing being false\n");
             	continue;
         	}
 
