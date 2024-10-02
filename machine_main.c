@@ -94,47 +94,50 @@ int main(int argc, char *argv[]) {
 
             // Print the PC and Registers
             printf("      PC: %d\n", PC);
-            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n",
+            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
                 GPR.words[GP], GPR.words[SP], GPR.words[FP], GPR.words[3], GPR.words[4]);
-            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n",
+            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
                 GPR.words[5], GPR.words[6], GPR.words[RA]);
 
             // Print data items
             word_type count = 0;
             word_type repeat = 0;
-            //bool printed_dots = false;
             word_type data_addr = bofHeader.data_start_address;
             for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
                 word_type dataItem = memory.words[k];
-                //printf("k = %d, data_addr = %u", k, data_addr);
-                if (k == bofHeader.stack_bottom_addr) {
-                    printf("\n%u: %d  ", data_addr, dataItem);
-                    break;
-                }
-                //printf(" sp: %u: %d",GPR.words[SP], memory.words[GPR.words[SP]]);
+        	if (tracing == false) {
+                printf("Skipping iteration due to tracing being false\n");
+            	continue;
+        	}
+
+		if (k == bofHeader.stack_bottom_addr) {
+ 		    printf("\n%u: %d  ", data_addr, dataItem);
+		    break; 
+		}
+		//printf(" sp: %u: %d",GPR.words[SP], memory.words[GPR.words[SP]]);
                 if (dataItem == 0) repeat++;
-                else {
-                    repeat = 0;
-                    //printed_dots = false;
-                }
+		else { 
+		    repeat = 0;
+		    //printed_dots = false;
+		}
 
 
                 if (repeat == 2) {
                     printf("...   ");
-                    data_addr++;
-                    continue;
-                    //printed_dots = true;
+		    data_addr++;
+		    continue;
+		    
                 }
 
-                if (repeat > 2) {
-                    data_addr++;
-                    continue;
-                }
+		if (repeat > 2) {
+		    data_addr++;
+		    continue;
+		}
 
-                if (repeat < 2) {
+		if (repeat < 2) {
                     printf("%u: %d   ", data_addr, dataItem);
-                    count++;// print data
-                }
+		    count++;// print data
+		}
 
                 data_addr++;
                 //count++;
@@ -143,10 +146,10 @@ int main(int argc, char *argv[]) {
 
                 //if (k == bofHeader.stack_bottom_addr - 1) {
                 //    printf("%u: %d   ", data_addr, dataItem);
-                //    printf("...\n");
+		//    printf("...\n");
                     //if (k == 3) { printf("\n"); } // edge case
                     //printf("...\n");
-
+                
             }
 
             printf("\n==>\t  %d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));
