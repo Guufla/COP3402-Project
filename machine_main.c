@@ -12,11 +12,11 @@
 
 // a size for the memory (2 ^ 16 words = 32K words)
 #define MEMORY_SIZE_IN_WORDS 32768
-static union mem_u {
-    word_type words[MEMORY_SIZE_IN_WORDS];
-    uword_type uwords[MEMORY_SIZE_IN_WORDS];
-    bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
-} memory;
+//union mem_u {
+//    word_type words[MEMORY_SIZE_IN_WORDS];
+//    uword_type uwords[MEMORY_SIZE_IN_WORDS];
+//    bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
+//} memory;
 
 int main(int argc, char *argv[]) {
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Load data into memory
-        for (int k = bofHeader.data_start_address; k < bofHeader.data_length; k++) {
+        for (int k = bofHeader.data_start_address; k < bofHeader.data_start_address + bofHeader.data_length; k++) {
             memory.words[k] = bof_read_word(bof);
         }
 
@@ -94,34 +94,59 @@ int main(int argc, char *argv[]) {
 
             // Print the PC and Registers
             printf("      PC: %d\n", PC);
-            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
+            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n",
                 GPR.words[GP], GPR.words[SP], GPR.words[FP], GPR.words[3], GPR.words[4]);
-            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
+            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n",
                 GPR.words[5], GPR.words[6], GPR.words[RA]);
 
             // Print data items
             word_type count = 0;
             word_type repeat = 0;
-            word_type data = bofHeader.data_start_address;
-            for (int k = 0; k < bofHeader.data_length; k++) {
+            //bool printed_dots = false;
+            word_type data_addr = bofHeader.data_start_address;
+            for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
                 word_type dataItem = memory.words[k];
-                if (dataItem == 0) repeat++;
-                if (repeat == 2) {
-                    printf("...\n");
+                //printf("k = %d, data_addr = %u", k, data_addr);
+                if (k == bofHeader.stack_bottom_addr) {
+                    printf("\n%u: %d  ", data_addr, dataItem);
                     break;
                 }
+                //printf(" sp: %u: %d",GPR.words[SP], memory.words[GPR.words[SP]]);
+                if (dataItem == 0) repeat++;
+                else {
+                    repeat = 0;
+                    //printed_dots = false;
+                }
 
-                printf("%u: %d   ", data, dataItem); // print data
-                data++;
-                count++;
+
+                if (repeat == 2) {
+                    printf("...   ");
+                    data_addr++;
+                    continue;
+                    //printed_dots = true;
+                }
+
+                if (repeat > 2) {
+                    data_addr++;
+                    continue;
+                }
+
+                if (repeat < 2) {
+                    printf("%u: %d   ", data_addr, dataItem);
+                    count++;// print data
+                }
+
+                data_addr++;
+                //count++;
 
                 if (count != 0 && count % 5 == 0) printf("\n"); // print new line every 5 data
 
-                if (k == bofHeader.data_length - 1) {
-                    printf("%u: 0   ", data);
-                    if (k == 3) { printf("\n"); } // edge case
-                    printf("...\n");
-                }
+                //if (k == bofHeader.stack_bottom_addr - 1) {
+                //    printf("%u: %d   ", data_addr, dataItem);
+                //    printf("...\n");
+                    //if (k == 3) { printf("\n"); } // edge case
+                    //printf("...\n");
+
             }
 
             printf("\n==>\t  %d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));
