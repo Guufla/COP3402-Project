@@ -20,10 +20,10 @@
 
 int main(int argc, char *argv[]) {
 
-    int pFlag = 0;
+    
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
-            pFlag = 1;
+            
             BOFFILE bof = bof_read_open(argv[i + 1]);
             BOFHeader bofHeader = bof_read_header(bof);
             bin_instr_t instru;
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
         BOFFILE bof = bof_read_open(argv[1]);
         BOFHeader bofHeader = bof_read_header(bof);
         bin_instr_t instruction;
+        initialize();
 
         // Initialize all registers using the GPR array in machine.c
         GPR.words[GP] = bofHeader.data_start_address;
@@ -91,67 +92,59 @@ int main(int argc, char *argv[]) {
         // Process instructions
         while (PC < bofHeader.text_start_address + bofHeader.text_length) {
             instruction = memory.instrs[PC];
+            //PC++; // increment PC before execution
+            //machine_execute_instr(instruction);
 
-            // Print the PC and Registers
-            printf("      PC: %d\n", PC);
-            printf("GPR[$gp]: %d \tGPR[$sp]: %d \tGPR[$fp]: %d \tGPR[$r3]: %d \tGPR[$r4]: %d\n", 
-                GPR.words[GP], GPR.words[SP], GPR.words[FP], GPR.words[3], GPR.words[4]);
-            printf("GPR[$r5]: %d \tGPR[$r6]: %d \tGPR[$ra]: %d\n", 
-                GPR.words[5], GPR.words[6], GPR.words[RA]);
+            // Printing PC and Registers
+if (tracing == true) {
+    printf("      PC: %-5d\n", PC);
+    printf("GPR[$gp]: %-8d\tGPR[$sp]: %-8d\tGPR[$fp]: %-8d\tGPR[$r3]: %-8d\tGPR[$r4]: %-8d\n", 
+        GPR.words[GP], GPR.words[SP], GPR.words[FP], GPR.words[3], GPR.words[4]);
+    printf("GPR[$r5]: %-8d\tGPR[$r6]: %-8d\tGPR[$ra]: %-8d\n", 
+        GPR.words[5], GPR.words[6], GPR.words[RA]);
+}
 
-            // Print data items
-            word_type count = 0;
-            word_type repeat = 0;
-            word_type data_addr = bofHeader.data_start_address;
-            for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
-                word_type dataItem = memory.words[k];
-        	if (tracing == false) {
-            	continue;
-        	}
+// Printing Data Items
+if (tracing == true) {
+    word_type count = 0;
+    word_type repeat = 0;
+    word_type data_addr = bofHeader.data_start_address;
+    for (int k = bofHeader.data_start_address; k <= bofHeader.stack_bottom_addr; k++) {
+        word_type dataItem = memory.words[k];
 
-		if (k == bofHeader.stack_bottom_addr) {
- 		    printf("\n%u: %d  ", data_addr, dataItem);
-		    break; 
-		}
-		//printf(" sp: %u: %d",GPR.words[SP], memory.words[GPR.words[SP]]);
-                if (dataItem == 0) repeat++;
-		else { 
-		    repeat = 0;
-		    //printed_dots = false;
-		}
+        if (k == bofHeader.stack_bottom_addr) {
+            printf("\n%8u: %-8d\n", data_addr, dataItem);
+            break; 
+        }
 
+        if (dataItem == 0) repeat++;
+        else repeat = 0;
 
-                if (repeat == 2) {
-                    printf("...   ");
-		    data_addr++;
-		    continue;
-		    
-                }
+        if (repeat == 2) {
+            printf("%8s", "...");
+            printf("%8s", "");
+            data_addr++;
+            continue;
+        }
 
-		if (repeat > 2) {
-		    data_addr++;
-		    continue;
-		}
+        if (repeat > 2) {
+            data_addr++;
+            continue;
+        }
 
-		if (repeat < 2) {
-                    printf("%u: %d   ", data_addr, dataItem);
-		    count++;// print data
-		}
+        if (repeat < 2) {
+            printf("%8u: %-8d\t", data_addr, dataItem);
+            count++;
+        }
+        data_addr++;
+        if (count != 0 && count % 5 == 0) printf("\n"); // print new line every 5 data
+    }
+}
 
-                data_addr++;
-                //count++;
-
-                if (count != 0 && count % 5 == 0) printf("\n"); // print new line every 5 data
-
-                //if (k == bofHeader.stack_bottom_addr - 1) {
-                //    printf("%u: %d   ", data_addr, dataItem);
-		//    printf("...\n");
-                    //if (k == 3) { printf("\n"); } // edge case
-                    //printf("...\n");
-                
-            }
-
-            printf("\n==>\t  %d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));
+        // Printing the instruction being executed
+        if (tracing == true) {
+            printf("\n==>\t%6d: %s\n", PC, instruction_assembly_form(PC, memory.instrs[PC]));
+        }
             PC++; // increment PC before execution
             machine_execute_instr(instruction);
         }

@@ -6,6 +6,7 @@
         "regname.h": "c",
         "utilities.h": "c",
         "string.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "stdio.h": "c"
     }
 }
