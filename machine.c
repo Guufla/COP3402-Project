@@ -104,25 +104,33 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case AND_F: // Bitwise And
                 {
-                    GPR.uwords[com.rt] = GPR.uwords[SP] & GPR.uwords[com.rs];
+                    //GPR.uwords[com.rt] = GPR.uwords[SP] & GPR.uwords[com.rs];
+                    memory.uwords[GPR.uwords[com.rt] + machine_types_formOffset(com.ot)] = 
+                        memory.uwords[GPR.uwords[SP]] & (memory.uwords[GPR.uwords[com.rs]] + machine_types_formOffset(com.os));
 
                     break;
                 }
                 case BOR_F: // Bitwise OR
                 {
-                    GPR.uwords[com.rt] = GPR.uwords[SP] | GPR.uwords[com.rs];
+                   // GPR.uwords[com.rt] = GPR.uwords[SP] | GPR.uwords[com.rs];
+                   memory.uwords[GPR.uwords[com.rt] + machine_types_formOffset(com.ot)] = 
+                        memory.uwords[GPR.uwords[SP]] | (memory.uwords[GPR.uwords[com.rs]] + machine_types_formOffset(com.os));
 
                     break;
                 }
                 case NOR_F: // Not or
                 {   
-                    GPR.uwords[com.rt] = ~(GPR.uwords[SP] | GPR.uwords[com.rs]);
+                    memory.uwords[GPR.uwords[com.rt] + machine_types_formOffset(com.ot)] = 
+                        ~(memory.uwords[GPR.uwords[SP]] | (memory.uwords[GPR.uwords[com.rs]] + machine_types_formOffset(com.os)));
 
                     break;
                 }
                 case XOR_F: // Exclusive - or
                 {
-                    GPR.uwords[com.rt] = GPR.uwords[SP] ^ GPR.uwords[com.rs];
+                    //GPR.uwords[com.rt] = GPR.uwords[SP] ^ GPR.uwords[com.rs]; original
+
+                     memory.uwords[GPR.uwords[com.rt] + machine_types_formOffset(com.ot)] = 
+                        (memory.uwords[GPR.uwords[SP]] ^ (memory.uwords[GPR.uwords[com.rs]] + machine_types_formOffset(com.os)));
 
                     break;
                 }
@@ -151,7 +159,10 @@ void machine_execute_instr(bin_instr_t bi){
                 }
                 case NEG_F: // Negate
                 {
-                    GPR.words[com.rt] = -GPR.words[com.rs];
+                    //GPR.words[com.rt] = -GPR.words[com.rs];
+                    address_type rt_addr = GPR.words[com.rt] + machine_types_formOffset(com.ot);
+                    address_type rs_addr = GPR.words[com.rs] + machine_types_formOffset(com.os);
+                    memory.words[rt_addr] = -memory.words[rs_addr];
 
                     break;
                 }
